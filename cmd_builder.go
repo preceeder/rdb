@@ -227,12 +227,7 @@ func ExecuteCmd[T redis.Cmder](rdm *RedisClient, ctx context.Context, cmd RdCmd,
 	if !subCmd.ReturnNilError && errors.Is(cmdErr, redis.Nil) {
 		cmdErr = nil
 	}
-	if cmdErr != nil {
-		// 如果 cmder 支持 SetErr，设置错误
-		if errSetter, ok := cmder.(interface{ SetErr(error) }); ok {
-			errSetter.SetErr(cmdErr)
-		}
-	}
+	cmder.SetErr(cmdErr)
 
 	// 设置过期时间
 	if subCmd.Exp != nil {
