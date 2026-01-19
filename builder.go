@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -43,7 +44,7 @@ func Build(ctx context.Context, cmd RdCmd, cmdName Command, args map[string]any,
 
 	paramsStr := []any{}
 	if subCmd.Params != "" {
-		tempData := strings.Split(subCmd.Params, " ")
+		tempData := strings.Split(replaceMultiSpaceWithSingle(subCmd.Params), " ")
 		for _, v := range tempData {
 			paramsStr = append(paramsStr, string(highPerfReplace([]byte(v), args)))
 		}
@@ -65,6 +66,13 @@ func Build(ctx context.Context, cmd RdCmd, cmdName Command, args map[string]any,
 		cmdArgs = append(cmdArgs, includeArgs...)
 	}
 	return cmdArgs, keyStr, subCmd
+}
+
+func replaceMultiSpaceWithSingle(s string) string {
+	// 预编译正则表达式：匹配一个或多个空白字符（空格）
+	spaceRegex := regexp.MustCompile(`\s+`)
+	// 替换匹配到的连续空格为单个空格
+	return spaceRegex.ReplaceAllString(strings.TrimSpace(s), " ")
 }
 
 func highPerfReplace(template []byte, replacements map[string]any) []byte {
